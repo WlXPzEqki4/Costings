@@ -2,53 +2,11 @@ import React from 'react';
 import { 
   ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, 
   ResponsiveContainer, Legend, Label, BarChart, Bar, LineChart, Line,
-  PieChart, Pie, Cell, ComposedChart, Area, ReferenceLine
+  PieChart, Pie, Cell, ComposedChart, Area, ReferenceLine, Rectangle, LabelList
 } from 'recharts';
 
-const BoxPlot = ({ data, domain, color }) => {
-  const { name, min, q1, median, q3, max, mean } = data[0];
-  
-  // Simple box plot visualization
-  return (
-    <ResponsiveContainer width="100%" height={200}>
-      <ComposedChart 
-        layout="horizontal"
-        margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
-      >
-        <CartesianGrid strokeDasharray="3 3" vertical={false} />
-        <XAxis type="number" domain={domain} />
-        <YAxis type="category" dataKey="name" hide />
-        <Tooltip />
-        
-        {/* Min to Max Line */}
-        <Line 
-          dataKey="value"
-          data={[
-            { name: "value", value: min },
-            { name: "value", value: max }
-          ]}
-          stroke="#000000"
-          strokeWidth={1}
-        />
-        
-        {/* IQR Box */}
-        <Bar 
-          dataKey="value"
-          data={[{ name: "value", value: q3 - q1, x: q1 }]}
-          fill={color}
-          minPointSize={20}
-          barSize={20}
-        />
-        
-        {/* Mean Line */}
-        <ReferenceLine x={mean} stroke="#ff0000" strokeWidth={2} strokeDasharray="3 3" />
-        
-        {/* Median Line */}
-        <ReferenceLine x={median} stroke="#000000" strokeWidth={2} />
-      </ComposedChart>
-    </ResponsiveContainer>
-  );
-};
+// A simplified box plot component
+// We're no longer using BoxPlot, replaced with simpler bar-based distribution visualization
 
 const QueryCreditsAnalysis = () => {
   const data = [
@@ -160,13 +118,13 @@ const QueryCreditsAnalysis = () => {
 
   return (
     <div className="max-w-7xl mx-auto space-y-8 pb-24">
-      <h1 className="text-2xl font-bold text-center my-4">API Usage Analysis Dashboard</h1>
+      <h1 className="text-5xl font-bold text-center my-4">Usage Analysis Dashboard</h1>
 
       {/* Statistical Tables with Box Plots */}
       <div className="space-y-6">
         {/* Total Queries Stats */}
         <div className="bg-white p-4 rounded-lg shadow">
-          <h2 className="text-lg font-bold mb-4 text-center">Total Queries Analysis</h2>
+          <h2 className="text-2xl font-bold mb-4 text-center">Analysis of Total Monthly Queries</h2>
           <div className="flex flex-col md:flex-row">
             <div className="md:w-1/2 p-2">
               <h3 className="text-md font-medium mb-2">Statistics</h3>
@@ -178,22 +136,69 @@ const QueryCreditsAnalysis = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr className="border-t"><td className="p-2">Min</td><td className="p-2 text-right">{stats.queries.min.toFixed(2)}</td></tr>
-                  <tr className="border-t"><td className="p-2">Max</td><td className="p-2 text-right">{stats.queries.max.toFixed(2)}</td></tr>
-                  <tr className="border-t"><td className="p-2">Mean</td><td className="p-2 text-right">{stats.queries.mean.toFixed(2)}</td></tr>
-                  <tr className="border-t"><td className="p-2">Median</td><td className="p-2 text-right">{stats.queries.median.toFixed(2)}</td></tr>
+                  <tr className="border-t"><td className="p-2">Min</td><td className="p-2 text-right">{stats.queries.min.toFixed(0)}</td></tr>
+                  <tr className="border-t"><td className="p-2">Max</td><td className="p-2 text-right">{stats.queries.max.toFixed(0)}</td></tr>
+                  <tr className="border-t"><td className="p-2">Mean</td><td className="p-2 text-right">{stats.queries.mean.toFixed(1)}</td></tr>
+                  <tr className="border-t"><td className="p-2">Median</td><td className="p-2 text-right">{stats.queries.median.toFixed(0)}</td></tr>
                   <tr className="border-t"><td className="p-2">Std Dev</td><td className="p-2 text-right">{stats.queries.stdDev.toFixed(2)}</td></tr>
-                  <tr className="border-t"><td className="p-2">Q1</td><td className="p-2 text-right">{stats.queries.q1.toFixed(2)}</td></tr>
-                  <tr className="border-t"><td className="p-2">Q3</td><td className="p-2 text-right">{stats.queries.q3.toFixed(2)}</td></tr>
+                  <tr className="border-t"><td className="p-2">Q1</td><td className="p-2 text-right">{stats.queries.q1.toFixed(0)}</td></tr>
+                  <tr className="border-t"><td className="p-2">Q3</td><td className="p-2 text-right">{stats.queries.q3.toFixed(0)}</td></tr>
                 </tbody>
               </table>
             </div>
             <div className="md:w-1/2 p-2">
-              <h3 className="text-md font-medium mb-2">Box and Whisker Plot</h3>
-              <BoxPlot data={queriesBoxData} domain={[0, 70]} color="#8884d8" />
+              <h3 className="text-md font-medium mb-2">Distribution Visualization</h3>
+              <ResponsiveContainer width="100%" height={120}>
+                <BarChart
+                  layout="vertical"
+                  data={[
+                    { name: "Range", value: stats.queries.max - stats.queries.min, x: stats.queries.min }
+                  ]}
+                  margin={{ top: 20, right: 20, bottom: 5, left: 20 }}
+                >
+                  <XAxis type="number" domain={[0, 70]} />
+                  <YAxis type="category" dataKey="name" hide />
+                  <Tooltip />
+                  
+                  {/* Full range bar (min to max) */}
+                  <Bar dataKey="value" isAnimationActive={false} barSize={20} fill="#e5e7eb">
+                    <LabelList dataKey="x" position="left" content={({value}) => <text x={value-5} y={30} textAnchor="end" fontSize={12}>{value}</text>} />
+                    <LabelList dataKey="value" position="right" content={({x, value}) => <text x={x+value+5} y={30} textAnchor="start" fontSize={12}>{stats.queries.max}</text>} />
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+              
+              <ResponsiveContainer width="100%" height={120}>
+                <BarChart
+                  layout="vertical"
+                  data={[
+                    { name: "IQR", value: stats.queries.q3 - stats.queries.q1, x: stats.queries.q1 }
+                  ]}
+                  margin={{ top: 0, right: 20, bottom: 0, left: 20 }}
+                >
+                  <XAxis type="number" domain={[0, 70]} />
+                  <YAxis type="category" dataKey="name" hide />
+                  <Tooltip />
+                  
+                  {/* Q1-Q3 bar */}
+                  <Bar dataKey="value" fill="#8884d8" barSize={20} isAnimationActive={false}>
+                    <LabelList dataKey="x" position="left" content={({value}) => <text x={value-2} y={30} textAnchor="end" fontSize={12}>{`Q1: ${value}`}</text>} />
+                    <LabelList dataKey="value" position="right" content={({x, value}) => <text x={x+value+2} y={30} textAnchor="start" fontSize={12}>{`Q3: ${stats.queries.q3}`}</text>} />
+                  </Bar>
+                  
+                  {/* Median and Mean markers */}
+                  <ReferenceLine x={stats.queries.median} stroke="#000000" strokeWidth={2}>
+                    <Label value={`Median: ${stats.queries.median}`} position="top" fontSize={12} />
+                  </ReferenceLine>
+                  <ReferenceLine x={stats.queries.mean} stroke="#ff0000" strokeWidth={2} strokeDasharray="3 3">
+                    <Label value={`Mean: ${stats.queries.mean.toFixed(1)}`} position="bottom" fontSize={12} fill="#ff0000" />
+                  </ReferenceLine>
+                </BarChart>
+              </ResponsiveContainer>
+              
               <div className="text-xs text-center mt-2">
-                <span className="inline-block w-3 h-3 bg-indigo-400 mr-1"></span> IQR Box (Q1-Q3)
-                <span className="inline-block ml-3 mr-1">―</span> Whiskers (Min-Max)
+                <span className="inline-block w-3 h-3 bg-gray-200 mr-1"></span> Range (Min-Max)
+                <span className="inline-block ml-3 mr-1 w-3 h-3 bg-indigo-400"></span> IQR (Q1-Q3)
                 <span className="inline-block ml-3 mr-1" style={{ color: 'red' }}>- - -</span> Mean
               </div>
             </div>
@@ -202,7 +207,7 @@ const QueryCreditsAnalysis = () => {
 
         {/* Total Credits Stats */}
         <div className="bg-white p-4 rounded-lg shadow">
-          <h2 className="text-lg font-bold mb-4 text-center">Total Credits Analysis</h2>
+          <h2 className="text-2xl font-bold mb-4 text-center">Analysis of Total Monthly Credits</h2>
           <div className="flex flex-col md:flex-row">
             <div className="md:w-1/2 p-2">
               <h3 className="text-md font-medium mb-2">Statistics</h3>
@@ -214,22 +219,69 @@ const QueryCreditsAnalysis = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr className="border-t"><td className="p-2">Min</td><td className="p-2 text-right">{stats.credits.min.toFixed(2)}</td></tr>
-                  <tr className="border-t"><td className="p-2">Max</td><td className="p-2 text-right">{stats.credits.max.toFixed(2)}</td></tr>
-                  <tr className="border-t"><td className="p-2">Mean</td><td className="p-2 text-right">{stats.credits.mean.toFixed(2)}</td></tr>
-                  <tr className="border-t"><td className="p-2">Median</td><td className="p-2 text-right">{stats.credits.median.toFixed(2)}</td></tr>
+                  <tr className="border-t"><td className="p-2">Min</td><td className="p-2 text-right">{stats.credits.min.toFixed(0)}</td></tr>
+                  <tr className="border-t"><td className="p-2">Max</td><td className="p-2 text-right">{stats.credits.max.toFixed(0)}</td></tr>
+                  <tr className="border-t"><td className="p-2">Mean</td><td className="p-2 text-right">{stats.credits.mean.toFixed(1)}</td></tr>
+                  <tr className="border-t"><td className="p-2">Median</td><td className="p-2 text-right">{stats.credits.median.toFixed(0)}</td></tr>
                   <tr className="border-t"><td className="p-2">Std Dev</td><td className="p-2 text-right">{stats.credits.stdDev.toFixed(2)}</td></tr>
-                  <tr className="border-t"><td className="p-2">Q1</td><td className="p-2 text-right">{stats.credits.q1.toFixed(2)}</td></tr>
-                  <tr className="border-t"><td className="p-2">Q3</td><td className="p-2 text-right">{stats.credits.q3.toFixed(2)}</td></tr>
+                  <tr className="border-t"><td className="p-2">Q1</td><td className="p-2 text-right">{stats.credits.q1.toFixed(0)}</td></tr>
+                  <tr className="border-t"><td className="p-2">Q3</td><td className="p-2 text-right">{stats.credits.q3.toFixed(0)}</td></tr>
                 </tbody>
               </table>
             </div>
             <div className="md:w-1/2 p-2">
-              <h3 className="text-md font-medium mb-2">Box and Whisker Plot</h3>
-              <BoxPlot data={creditsBoxData} domain={[0, 2000]} color="#82ca9d" />
+              <h3 className="text-md font-medium mb-2">Distribution Visualization</h3>
+              <ResponsiveContainer width="100%" height={120}>
+                <BarChart
+                  layout="vertical"
+                  data={[
+                    { name: "Range", value: stats.credits.max - stats.credits.min, x: stats.credits.min }
+                  ]}
+                  margin={{ top: 20, right: 20, bottom: 5, left: 20 }}
+                >
+                  <XAxis type="number" domain={[0, 2000]} />
+                  <YAxis type="category" dataKey="name" hide />
+                  <Tooltip />
+                  
+                  {/* Full range bar (min to max) */}
+                  <Bar dataKey="value" isAnimationActive={false} barSize={20} fill="#e5e7eb">
+                    <LabelList dataKey="x" position="left" content={({value}) => <text x={value-5} y={30} textAnchor="end" fontSize={12}>{value}</text>} />
+                    <LabelList dataKey="value" position="right" content={({x, value}) => <text x={x+value+5} y={30} textAnchor="start" fontSize={12}>{stats.credits.max}</text>} />
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+              
+              <ResponsiveContainer width="100%" height={120}>
+                <BarChart
+                  layout="vertical"
+                  data={[
+                    { name: "IQR", value: stats.credits.q3 - stats.credits.q1, x: stats.credits.q1 }
+                  ]}
+                  margin={{ top: 0, right: 20, bottom: 0, left: 20 }}
+                >
+                  <XAxis type="number" domain={[0, 2000]} />
+                  <YAxis type="category" dataKey="name" hide />
+                  <Tooltip />
+                  
+                  {/* Q1-Q3 bar */}
+                  <Bar dataKey="value" fill="#82ca9d" barSize={20} isAnimationActive={false}>
+                    <LabelList dataKey="x" position="left" content={({value}) => <text x={value-2} y={30} textAnchor="end" fontSize={12}>{`Q1: ${value}`}</text>} />
+                    <LabelList dataKey="value" position="right" content={({x, value}) => <text x={x+value+2} y={30} textAnchor="start" fontSize={12}>{`Q3: ${stats.credits.q3}`}</text>} />
+                  </Bar>
+                  
+                  {/* Median and Mean markers */}
+                  <ReferenceLine x={stats.credits.median} stroke="#000000" strokeWidth={2}>
+                    <Label value={`Median: ${stats.credits.median}`} position="top" fontSize={12} />
+                  </ReferenceLine>
+                  <ReferenceLine x={stats.credits.mean} stroke="#ff0000" strokeWidth={2} strokeDasharray="3 3">
+                    <Label value={`Mean: ${stats.credits.mean.toFixed(1)}`} position="bottom" fontSize={12} fill="#ff0000" />
+                  </ReferenceLine>
+                </BarChart>
+              </ResponsiveContainer>
+              
               <div className="text-xs text-center mt-2">
-                <span className="inline-block w-3 h-3 bg-green-400 mr-1"></span> IQR Box (Q1-Q3)
-                <span className="inline-block ml-3 mr-1">―</span> Whiskers (Min-Max)
+                <span className="inline-block w-3 h-3 bg-gray-200 mr-1"></span> Range (Min-Max)
+                <span className="inline-block ml-3 mr-1 w-3 h-3 bg-green-400"></span> IQR (Q1-Q3)
                 <span className="inline-block ml-3 mr-1" style={{ color: 'red' }}>- - -</span> Mean
               </div>
             </div>
@@ -238,7 +290,7 @@ const QueryCreditsAnalysis = () => {
 
         {/* Credits per Query Stats */}
         <div className="bg-white p-4 rounded-lg shadow">
-          <h2 className="text-lg font-bold mb-4 text-center">Credits per Query Analysis</h2>
+          <h2 className="text-2xl font-bold mb-4 text-center">Credits per Query Analysis</h2>
           <div className="flex flex-col md:flex-row">
             <div className="md:w-1/2 p-2">
               <h3 className="text-md font-medium mb-2">Statistics</h3>
@@ -261,11 +313,58 @@ const QueryCreditsAnalysis = () => {
               </table>
             </div>
             <div className="md:w-1/2 p-2">
-              <h3 className="text-md font-medium mb-2">Box and Whisker Plot</h3>
-              <BoxPlot data={cpqBoxData} domain={[0, 55]} color="#3b82f6" />
+              <h3 className="text-md font-medium mb-2">Distribution Visualization</h3>
+              <ResponsiveContainer width="100%" height={120}>
+                <BarChart
+                  layout="vertical"
+                  data={[
+                    { name: "Range", value: stats.cpq.max - stats.cpq.min, x: stats.cpq.min }
+                  ]}
+                  margin={{ top: 20, right: 20, bottom: 5, left: 20 }}
+                >
+                  <XAxis type="number" domain={[0, 55]} />
+                  <YAxis type="category" dataKey="name" hide />
+                  <Tooltip />
+                  
+                  {/* Full range bar (min to max) */}
+                  <Bar dataKey="value" isAnimationActive={false} barSize={20} fill="#e5e7eb">
+                    <LabelList dataKey="x" position="left" content={({value}) => <text x={value-2} y={30} textAnchor="end" fontSize={12}>{value.toFixed(1)}</text>} />
+                    <LabelList dataKey="value" position="right" content={({x, value}) => <text x={x+value+2} y={30} textAnchor="start" fontSize={12}>{stats.cpq.max.toFixed(1)}</text>} />
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+              
+              <ResponsiveContainer width="100%" height={120}>
+                <BarChart
+                  layout="vertical"
+                  data={[
+                    { name: "IQR", value: stats.cpq.q3 - stats.cpq.q1, x: stats.cpq.q1 }
+                  ]}
+                  margin={{ top: 0, right: 20, bottom: 0, left: 20 }}
+                >
+                  <XAxis type="number" domain={[0, 55]} />
+                  <YAxis type="category" dataKey="name" hide />
+                  <Tooltip />
+                  
+                  {/* Q1-Q3 bar */}
+                  <Bar dataKey="value" fill="#3b82f6" barSize={20} isAnimationActive={false}>
+                    <LabelList dataKey="x" position="left" content={({value}) => <text x={value-2} y={30} textAnchor="end" fontSize={12}>{`Q1: ${value.toFixed(1)}`}</text>} />
+                    <LabelList dataKey="value" position="right" content={({x, value}) => <text x={x+value+2} y={30} textAnchor="start" fontSize={12}>{`Q3: ${stats.cpq.q3.toFixed(1)}`}</text>} />
+                  </Bar>
+                  
+                  {/* Median and Mean markers */}
+                  <ReferenceLine x={stats.cpq.median} stroke="#000000" strokeWidth={2}>
+                    <Label value={`Median: ${stats.cpq.median.toFixed(1)}`} position="top" fontSize={12} />
+                  </ReferenceLine>
+                  <ReferenceLine x={stats.cpq.mean} stroke="#ff0000" strokeWidth={2} strokeDasharray="3 3">
+                    <Label value={`Mean: ${stats.cpq.mean.toFixed(1)}`} position="bottom" fontSize={12} fill="#ff0000" />
+                  </ReferenceLine>
+                </BarChart>
+              </ResponsiveContainer>
+              
               <div className="text-xs text-center mt-2">
-                <span className="inline-block w-3 h-3 bg-blue-400 mr-1"></span> IQR Box (Q1-Q3)
-                <span className="inline-block ml-3 mr-1">―</span> Whiskers (Min-Max)
+                <span className="inline-block w-3 h-3 bg-gray-200 mr-1"></span> Range (Min-Max)
+                <span className="inline-block ml-3 mr-1 w-3 h-3 bg-blue-400"></span> IQR (Q1-Q3)
                 <span className="inline-block ml-3 mr-1" style={{ color: 'red' }}>- - -</span> Mean
               </div>
             </div>
@@ -275,7 +374,7 @@ const QueryCreditsAnalysis = () => {
 
       {/* Correlation Analysis */}
       <div className="bg-white p-4 rounded-lg shadow">
-        <h2 className="text-xl font-bold mb-4 text-center">Queries vs Credits Correlation</h2>
+        <h2 className="text-2xl font-bold mb-4 text-center">Queries vs Credits Correlation</h2>
         <ResponsiveContainer width="100%" height={300}>
           <ScatterChart
             margin={{ top: 20, right: 20, bottom: 20, left: 60 }}
@@ -320,7 +419,7 @@ const QueryCreditsAnalysis = () => {
 
       {/* Monthly Trends */}
       <div className="bg-white p-4 rounded-lg shadow">
-        <h2 className="text-xl font-bold mb-4 text-center">Monthly Trends - Combined View</h2>
+        <h2 className="text-2xl font-bold mb-4 text-center">Monthly Trends - Combined View</h2>
         <ResponsiveContainer width="100%" height={400}>
           <ComposedChart
             data={data}
@@ -349,7 +448,7 @@ const QueryCreditsAnalysis = () => {
 
       {/* Credits per Query - Monthly */}
       <div className="bg-white p-4 rounded-lg shadow">
-        <h2 className="text-xl font-bold mb-4 text-center">Credits per Query by Month</h2>
+        <h2 className="text-2xl font-bold mb-4 text-center">Credits per Query by Month</h2>
         <ResponsiveContainer width="100%" height={300}>
           <BarChart
             data={data}
@@ -430,7 +529,7 @@ const QueryCreditsAnalysis = () => {
         </div>
       </div>
       <div className="bg-white p-4 rounded-lg shadow">
-        <h2 className="text-xl font-bold mb-4 text-center">Monthly Data with Ratios</h2>
+        <h2 className="text-2xl font-bold mb-4 text-center">Monthly Data with Ratios</h2>
         <div className="overflow-x-auto">
           <table className="min-w-full">
             <thead>
@@ -459,3 +558,13 @@ const QueryCreditsAnalysis = () => {
 };
 
 export default QueryCreditsAnalysis;
+
+
+
+
+
+
+
+
+
+

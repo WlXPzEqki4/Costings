@@ -126,7 +126,7 @@ const SnowflakeQueryEstimator = () => {
     <div className="max-w-7xl mx-auto p-6 bg-white rounded-lg shadow-md pb-24">
       {/* Section 1: Query Estimator */}
       <div className="border-b border-gray-200 pb-4 mb-6">
-        <h2 className="text-xl font-bold mb-4 text-center">Snowflake Query Execution Time Estimator</h2>
+        <h2 className="text-5xl font-bold mb-4 text-center">Snowflake Query Execution Time Estimator</h2>
         
         <div className="mb-6">
           <div className="mb-2 text-sm text-gray-600">
@@ -259,7 +259,7 @@ const SnowflakeQueryEstimator = () => {
       
       {/* Section 2: Historical Analysis */}
       <div className="mt-8">
-        <h2 className="text-xl font-bold mb-4 text-center">Monthly Historical Analysis</h2>
+        <h2 className="text-5xl font-bold mb-4 text-center">Monthly Historical Analysis</h2>
         
         <div className="mb-6">
           <label className="block mb-2 font-medium">Select a month to analyze:</label>
