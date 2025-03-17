@@ -8,6 +8,7 @@ import {
 const BoxPlot = ({ data, domain, color }) => {
   const { name, min, q1, median, q3, max, mean } = data[0];
   
+  // Simple box plot visualization
   return (
     <ResponsiveContainer width="100%" height={200}>
       <ComposedChart 
@@ -17,82 +18,33 @@ const BoxPlot = ({ data, domain, color }) => {
         <CartesianGrid strokeDasharray="3 3" vertical={false} />
         <XAxis type="number" domain={domain} />
         <YAxis type="category" dataKey="name" hide />
-        <Tooltip 
-          formatter={(value, name) => {
-            if (name === 'box') return [`IQR: ${q1} - ${q3}`, 'Interquartile Range'];
-            if (name === 'median') return [`Median: ${median}`, 'Median'];
-            if (name === 'min') return [`Min: ${min}`, 'Minimum'];
-            if (name === 'max') return [`Max: ${max}`, 'Maximum'];
-            if (name === 'mean') return [`Mean: ${mean}`, 'Mean'];
-            return [value, name];
-          }}
+        <Tooltip />
+        
+        {/* Min to Max Line */}
+        <Line 
+          dataKey="value"
+          data={[
+            { name: "value", value: min },
+            { name: "value", value: max }
+          ]}
+          stroke="#000000"
+          strokeWidth={1}
         />
         
-        {/* The IQR box (Q1 to Q3) */}
+        {/* IQR Box */}
         <Bar 
-          dataKey="box" 
-          data={[{ name, box: q3 - q1, x: q1 }]} 
+          dataKey="value"
+          data={[{ name: "value", value: q3 - q1, x: q1 }]}
           fill={color}
-          shape={(props) => {
-            const { x, y, width, height } = props;
-            return (
-              <rect 
-                x={props.x} 
-                y={y + height/4} 
-                width={width} 
-                height={height/2} 
-                fill={color}
-              />
-            );
-          }}
-          isAnimationActive={false}
+          minPointSize={20}
+          barSize={20}
         />
         
-        {/* Median line */}
-        <ReferenceLine x={median} stroke="#000000" strokeWidth={2}>
-          <Label value="Median" position="top" />
-        </ReferenceLine>
+        {/* Mean Line */}
+        <ReferenceLine x={mean} stroke="#ff0000" strokeWidth={2} strokeDasharray="3 3" />
         
-        {/* Left whisker (min to q1) */}
-        <Line 
-          dataKey="value"
-          data={[
-            { name, value: min },
-            { name, value: q1 }
-          ]}
-          stroke="#000000"
-          strokeWidth={1}
-          dot={false}
-        />
-        
-        {/* Right whisker (q3 to max) */}
-        <Line 
-          dataKey="value"
-          data={[
-            { name, value: q3 },
-            { name, value: max }
-          ]}
-          stroke="#000000"
-          strokeWidth={1}
-          dot={false}
-        />
-        
-        {/* Min and Max dots */}
-        <Scatter 
-          dataKey="value"
-          data={[
-            { name, value: min },
-            { name, value: max }
-          ]}
-          fill="#000000"
-          shape="circle"
-          legendType="none"
-        />
-        
-        {/* Mean marker */}
-        <ReferenceLine x={mean} stroke="#ff0000" strokeWidth={2} strokeDasharray="3 3">
-          <Label value="Mean" position="bottom" />
-        </ReferenceLine>
+        {/* Median Line */}
+        <ReferenceLine x={median} stroke="#000000" strokeWidth={2} />
       </ComposedChart>
     </ResponsiveContainer>
   );
@@ -507,11 +459,3 @@ const QueryCreditsAnalysis = () => {
 };
 
 export default QueryCreditsAnalysis;
-
-
-
-
-
-
-
-

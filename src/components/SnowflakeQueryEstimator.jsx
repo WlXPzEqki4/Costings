@@ -123,7 +123,7 @@ const SnowflakeQueryEstimator = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md">
+    <div className="max-w-7xl mx-auto p-6 bg-white rounded-lg shadow-md pb-24">
       {/* Section 1: Query Estimator */}
       <div className="border-b border-gray-200 pb-4 mb-6">
         <h2 className="text-xl font-bold mb-4 text-center">Snowflake Query Execution Time Estimator</h2>
@@ -365,6 +365,3 @@ const SnowflakeQueryEstimator = () => {
 };
 
 export default SnowflakeQueryEstimator;
-
-
-
