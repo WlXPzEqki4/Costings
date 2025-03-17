@@ -13,6 +13,7 @@ import React from 'react';
 
 import QueryCreditsAnalysis from './components/QueryCreditsAnalysis';
 import SnowflakeQueryEstimator from './components/SnowflakeQueryEstimator';
+import DetailedJobScheduler from './components/DetailedJobScheduler';
 
 
 function App() {
@@ -40,6 +41,11 @@ function App() {
 
       <QueryCreditsAnalysis />
       <SnowflakeQueryEstimator />
+      <DetailedJobScheduler />
+
+
+  
+
 
     </div>
 
